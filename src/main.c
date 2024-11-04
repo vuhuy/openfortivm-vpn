@@ -82,6 +82,7 @@
 "                    [--pinentry=<program>] [--realm=<realm>]\n" \
 "                    [--ifname=<ifname>] [--set-routes=<0|1>]\n" \
 "                    [--half-internet-routes=<0|1>] [--set-dns=<0|1>]\n" \
+"                    [--dhcpd-ifname=<ifname>]\n" \
 PPPD_USAGE \
 "                    " RESOLVCONF_USAGE "[--ca-file=<file>]\n" \
 "                    [--user-cert=<file>] [--user-key=<file>]\n" \
@@ -168,6 +169,7 @@ PPPD_USAGE \
 "                                dh key." help_seclevel_1 "\n" \
 "  --persistent=<interval>       Run the vpn persistently in a loop and try to re-\n" \
 "                                connect every <interval> seconds when dropping out.\n" \
+"  --dhcpd-ifname=<interface>    Use dhcpd and let openfortivpn control the interface.\n" \
 "  -v                            Increase verbosity. Can be used multiple times\n" \
 "                                to be even more verbose.\n" \
 "  -q                            Decrease verbosity. Can be used multiple times\n" \
@@ -273,6 +275,8 @@ int main(int argc, char *argv[])
 		.cert_whitelist = NULL,
 		.use_engine = 0,
 		.user_agent = NULL,
+		.dhcpd_ifname = {'\0'},
+		.dhcpd_ifname_set = 0,
 	};
 	struct vpn_config cli_cfg = invalid_cfg;
 
@@ -325,6 +329,7 @@ int main(int argc, char *argv[])
 #if HAVE_RESOLVCONF
 		{"use-resolvconf",       required_argument, NULL, 0},
 #endif
+		{"dhcpd-ifname",         required_argument, NULL, 0},
 		{NULL, 0, NULL, 0}
 	};
 
@@ -602,6 +607,13 @@ int main(int argc, char *argv[])
 				free(cli_cfg.cookie);
 				cli_cfg.cookie = strdup_with_prefix(cookie, "SVPNCOOKIE=");
 				free(cookie);
+				break;
+			}
+			if (strcmp(long_options[option_index].name,
+			           "dhcpd-ifname") == 0) {
+				strncpy(cli_cfg.dhcpd_ifname, optarg, IF_NAMESIZE - 1);
+				cli_cfg.dhcpd_ifname[IF_NAMESIZE - 1] = '\0';
+				cli_cfg.dhcpd_ifname_set = 1;
 				break;
 			}
 			goto user_error;

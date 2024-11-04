@@ -87,6 +87,8 @@ const struct vpn_config invalid_cfg = {
 	.user_agent = NULL,
 	.hostcheck = NULL,
 	.check_virtual_desktop = NULL,
+	.dhcpd_ifname = {'\0'},
+	.dhcpd_ifname_set = 0,
 };
 
 /*
@@ -466,6 +468,10 @@ int load_config(struct vpn_config *cfg, const char *filename)
 		} else if (strcmp(key, "check-virtual-desktop") == 0) {
 			free(cfg->check_virtual_desktop);
 			cfg->check_virtual_desktop = strdup(val);
+		} else if (strcmp(key, "dhcpd-ifname") == 0) {
+			strncpy(cfg->dhcpd_ifname, val, IF_NAMESIZE - 1);
+			cfg->dhcpd_ifname[IF_NAMESIZE - 1] = '\0';
+			cfg->dhcpd_ifname_set = 1;
 		} else {
 			log_warn("Bad key in configuration file: \"%s\".\n", key);
 			goto err_free;
@@ -633,4 +639,8 @@ void merge_config(struct vpn_config *dst, struct vpn_config *src)
 		dst->hostcheck = src->hostcheck;
 	if (src->check_virtual_desktop != invalid_cfg.check_virtual_desktop)
 		dst->check_virtual_desktop = src->check_virtual_desktop;
+	if (src->dhcpd_ifname_set) {
+		strcpy(dst->dhcpd_ifname, src->dhcpd_ifname);
+		dst->dhcpd_ifname_set = src->dhcpd_ifname_set;
+	}
 }

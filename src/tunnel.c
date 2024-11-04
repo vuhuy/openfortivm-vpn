@@ -30,6 +30,7 @@
 #include "http.h"
 #include "log.h"
 #include "userinput.h"
+#include "dhcp.h"
 
 #include <openssl/err.h>
 #ifndef OPENSSL_NO_ENGINE
@@ -125,6 +126,11 @@ static int on_ppp_if_up(struct tunnel *tunnel)
 		ipv4_add_nameservers_to_resolv_conf(tunnel);
 	}
 
+	if (tunnel->config->dhcpd_ifname_set) {
+		log_info("Starting dhcpd...\n");
+		start_dhcpd(tunnel);
+	}
+
 	log_info("Tunnel is up and running.\n");
 
 #if HAVE_SYSTEMD
@@ -141,6 +147,11 @@ static int on_ppp_if_down(struct tunnel *tunnel)
 #endif
 
 	log_info("Setting %s interface down.\n", tunnel->ppp_iface);
+
+	if (tunnel->config->dhcpd_ifname_set) {
+		log_info("Stopping dhcpd...\n");
+		stop_dhcpd(tunnel);
+	}
 
 	if (tunnel->config->set_routes) {
 		log_info("Restoring routes...\n");

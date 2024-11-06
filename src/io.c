@@ -256,7 +256,7 @@ static void *pppd_read(void *arg)
 			packet = repacket;
 			packet->len = pktsize;
 
-			log_info("[heartbeat] %s ---> gateway (%lu bytes)\n", PPP_DAEMON,
+			log_debug("%s ---> gateway (%lu bytes)\n", PPP_DAEMON,
 			          packet->len);
 #if HAVE_USR_SBIN_PPPD
 			log_packet("pppd:   ", packet->len, pkt_data(packet));
@@ -485,7 +485,7 @@ static void *ssl_read(void *arg)
 			break;
 		}
 
-		log_info("[heartbeat] gateway ---> %s (%lu bytes)\n", PPP_DAEMON, packet->len);
+		log_debug("gateway ---> %s (%lu bytes)\n", PPP_DAEMON, packet->len);
 		log_packet("gtw:    ", packet->len, pkt_data(packet));
 		pool_push(&tunnel->ssl_to_pty_pool, packet);
 

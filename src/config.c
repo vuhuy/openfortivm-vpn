@@ -89,6 +89,7 @@ const struct vpn_config invalid_cfg = {
 	.check_virtual_desktop = NULL,
 	.dhcpd_ifname = {'\0'},
 	.dhcpd_ifname_set = 0,
+	.saml_url = { '\0' },
 };
 
 /*
@@ -472,6 +473,9 @@ int load_config(struct vpn_config *cfg, const char *filename)
 			strncpy(cfg->dhcpd_ifname, val, IF_NAMESIZE - 1);
 			cfg->dhcpd_ifname[IF_NAMESIZE - 1] = '\0';
 			cfg->dhcpd_ifname_set = 1;
+		} else if (strcmp(key, "saml-url") == 0) {
+			strncpy(cfg->saml_url, val, SAML_URL_SIZE - 1);
+			cfg->saml_url[SAML_URL_SIZE - 1] = '\0';
 		} else {
 			log_warn("Bad key in configuration file: \"%s\".\n", key);
 			goto err_free;
@@ -643,4 +647,6 @@ void merge_config(struct vpn_config *dst, struct vpn_config *src)
 		strcpy(dst->dhcpd_ifname, src->dhcpd_ifname);
 		dst->dhcpd_ifname_set = src->dhcpd_ifname_set;
 	}
+	if (src->saml_url)
+		strcpy(dst->saml_url, src->saml_url);
 }

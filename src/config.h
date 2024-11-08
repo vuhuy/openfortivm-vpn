@@ -64,6 +64,7 @@ struct x509_digest {
 #define OTP_SIZE	64
 #define REALM_SIZE	63
 #define PEM_PASSPHRASE_SIZE	31
+#define SAML_URL_SIZE	2048
 
 /*
  * RFC 6265 does not limit the size of cookies:
@@ -137,6 +138,7 @@ struct vpn_config {
 	char			*check_virtual_desktop;
 	char			dhcpd_ifname[IF_NAMESIZE];
 	int			dhcpd_ifname_set;
+	char			saml_url[SAML_URL_SIZE];
 };
 
 int add_trusted_cert(struct vpn_config *cfg, const char *digest);
